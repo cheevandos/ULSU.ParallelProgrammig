@@ -37,9 +37,11 @@ namespace MatrixMultiplication
             {
                 for (int secondMatrixRow = 0; secondMatrixRow < secondMatrix.GetLength(0); secondMatrixRow++)
                 {
-                    resultMatrix[rowNumber, firstMatrixCol] +=
+                    Interlocked.Add(
+                        ref resultMatrix[rowNumber, firstMatrixCol],
                         firstMatrix[rowNumber, secondMatrixRow] *
-                        secondMatrix[secondMatrixRow, firstMatrixCol];
+                        secondMatrix[secondMatrixRow, firstMatrixCol]
+                    );
                 }
             }
         }
@@ -56,6 +58,16 @@ namespace MatrixMultiplication
 
             Parallel.For(0, firstMatrix.GetLength(0), options, CalculateResultMatrixRow);
             return resultMatrix;
+        }
+
+        public int[,] MultiplyMatricesBlock()
+        {
+            return default;
+        }
+
+        public int[,] MultiplyMatricesBlockParallel()
+        {
+            return default;
         }
     }
 }

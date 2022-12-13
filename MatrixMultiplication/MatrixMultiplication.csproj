@@ -10,11 +10,12 @@
   <ItemGroup>
     <None Remove="BenchmarkDotNet" />
     <None Remove="Tests\" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
+    <None Remove="ConsoleTables" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Tests\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="ConsoleTables" Version="2.4.2" />
   </ItemGroup>
 </Project>
