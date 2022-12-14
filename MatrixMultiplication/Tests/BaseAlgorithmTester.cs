@@ -4,7 +4,7 @@ namespace MatrixMultiplication.Tests
 {
     public class BaseAlgorithmTester : ITester
     {
-        private readonly List<int> MatrixSizes = new() { 10, 100, 1000 };
+        private readonly List<int> MatrixSizes = new() { 100, 1000 };
         private readonly List<int> ThreadsCount = new() { 2, 4, 8 };
 
         private MatrixProcessor? baseProcessor;

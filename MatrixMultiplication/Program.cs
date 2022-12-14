@@ -1,9 +1,8 @@
 ﻿using ConsoleTables;
 using MatrixMultiplication;
 using MatrixMultiplication.Tests;
-using System.Diagnostics;
 
-MultiplicationMethod method;
+MultiplicationMethod? method = null;
 try
 {
     method = (MultiplicationMethod)Enum.Parse(typeof(MultiplicationMethod), args[0]);
@@ -14,22 +13,30 @@ catch (Exception)
     Environment.Exit(-1);
 }
 
-BaseAlgorithmTester baseAlgTester = new();
+ITester? algTester = null;
+
+if (method == MultiplicationMethod.Base)
+{
+    algTester = new BaseAlgorithmTester();
+}
+else
+{
+    algTester = new BlockAlgorithmTester();
+}
+
 //cold start
 Console.WriteLine("Running task on cold start...");
-Task testTask = Task.Run(baseAlgTester.Test);
+Task testTask = Task.Run(algTester.Test);
 Console.WriteLine($"Task status: {testTask.Status}");
 testTask.Wait();
 
 // main test
-Console.Clear();
 Console.WriteLine("Running main test...");
-Task<Dictionary<int, Dictionary<int, long>>> mainTask = Task.Run(baseAlgTester.Test);
+Task<Dictionary<int, Dictionary<int, long>>> mainTask = Task.Run(algTester.Test);
 Console.WriteLine($"Task status: {mainTask.Status}");
 mainTask.Wait();
 
 // display results
-Console.Clear();
 ConsoleTable? consoleTable = new ConsoleTable(
     "Matrix size",
     "1 thread",
@@ -47,16 +54,20 @@ foreach (var result in mainTask.Result)
 
     iterationResults.Add(result.Key.ToString());
 
-    double prevValue = 0;
+    double singleThreadMS = -1;
 
     foreach (var iteration in result.Value)
     {
-        iterationResults.Add($"{Math.Round((double)iteration.Value / 1000, 4)} sec");
-        if (prevValue != 0)
+        if (iteration.Key == 1)
         {
-            iterationResults.Add($"{Math.Round((double)iteration.Value / 1000 - prevValue, 4)} sec");
+            singleThreadMS = (double)iteration.Value / 1000;
+            iterationResults.Add($"{Math.Round((double)iteration.Value / 1000, 4)} sec");
         }
-        prevValue = (double)iteration.Value / 1000;
+        else
+        {
+            iterationResults.Add($"{Math.Round((double)iteration.Value / 1000, 4)} sec");
+            iterationResults.Add($"{Math.Round((double)iteration.Value / 1000 - singleThreadMS, 4)} sec");
+        }
     }
 
     consoleTable.AddRow(iterationResults.ToArray());

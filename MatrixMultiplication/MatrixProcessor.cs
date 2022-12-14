@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace MatrixMultiplication
 {
@@ -62,12 +63,92 @@ namespace MatrixMultiplication
 
         public int[,] MultiplyMatricesBlock()
         {
-            return default;
+            resultMatrix = new int[firstMatrix.GetLength(0), secondMatrix.GetLength(1)];
+
+            int gridSize = 4;
+
+/*            while (firstMatrix.GetLength(0) % gridSize != 0)
+            {
+                gridSize++;
+            }*/
+
+            int blockSize = firstMatrix.GetLength(0) / gridSize;
+            int blocksCount = gridSize * gridSize;
+
+            List<Tuple<int, int, int, int>> blocks = new();
+
+            for (int blockNum = 0; blockNum < blocksCount; blockNum++)
+            {
+                int startRow = (blockNum / gridSize) * blockSize;
+                int endRow = startRow + blockSize;
+                int startCol = (blockNum % gridSize) * blockSize;
+                int endCol = startCol + blockSize;
+                blocks.Add(new Tuple<int, int, int, int>(startRow, endRow, startCol, endCol));
+            }
+
+            foreach(Tuple<int, int, int, int> block in blocks)
+            {
+                CalculateResultMatrixBlock(block);
+            }
+
+            return resultMatrix;
         }
 
-        public int[,] MultiplyMatricesBlockParallel()
+        public int[,] MultiplyMatricesBlockParallel(int threadsCount)
         {
-            return default;
+            resultMatrix = new int[firstMatrix.GetLength(0), secondMatrix.GetLength(1)];
+
+            int gridSize = 4;
+
+/*            while (firstMatrix.GetLength(0) % gridSize != 0)
+            {
+                gridSize++;
+            }*/
+
+            int blockSize = firstMatrix.GetLength(0) / gridSize;
+            int blocksCount = gridSize * gridSize;
+
+            List<Tuple<int, int, int, int>> blocks = new();
+
+            for (int blockNum = 0; blockNum < blocksCount; blockNum++)
+            {
+                int startRow = (blockNum / gridSize) * blockSize;
+                int endRow = startRow + blockSize;
+                int startCol = (blockNum % gridSize) * blockSize;
+                int endCol = startCol + blockSize;
+                blocks.Add(new Tuple<int, int, int, int>(startRow, endRow, startCol, endCol));
+            }
+
+            ParallelOptions options = new()
+            {
+                MaxDegreeOfParallelism = threadsCount
+            };
+
+            Parallel.ForEach(blocks, options, CalculateResultMatrixBlock);
+
+            return resultMatrix;
         }
+
+
+
+#nullable disable
+        private void CalculateResultMatrixBlock(Tuple<int, int, int, int> block)
+        {
+            for (int row = block.Item1; row < block.Item2; row++)
+            {
+                for (int col = 0; col < secondMatrix.GetLength(1); col++)
+                {
+                    for (int secMatrixRow = block.Item3; secMatrixRow < block.Item4; secMatrixRow++)
+                    {
+                        Interlocked.Add(
+                            ref resultMatrix[row, col],
+                            firstMatrix[row, secMatrixRow] *
+                            secondMatrix[secMatrixRow, col]
+                        );
+                    }
+                }
+            }
+        }
+#nullable enable
     }
 }
