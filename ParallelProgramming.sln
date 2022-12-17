@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 25.0.1704.1
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32002.185
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatrixMultiplication", "MatrixMultiplication\MatrixMultiplication.csproj", "{F940FDAE-52D5-459A-871B-02449FD67280}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MatrixMultiplication", "MatrixMultiplication\MatrixMultiplication.csproj", "{F940FDAE-52D5-459A-871B-02449FD67280}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FloydAlgorithm", "FloydAlgorithm\FloydAlgorithm.csproj", "{47497CC2-406B-44C1-B549-EED8ABD23C5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{F940FDAE-52D5-459A-871B-02449FD67280}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F940FDAE-52D5-459A-871B-02449FD67280}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F940FDAE-52D5-459A-871B-02449FD67280}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47497CC2-406B-44C1-B549-EED8ABD23C5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47497CC2-406B-44C1-B549-EED8ABD23C5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47497CC2-406B-44C1-B549-EED8ABD23C5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47497CC2-406B-44C1-B549-EED8ABD23C5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
