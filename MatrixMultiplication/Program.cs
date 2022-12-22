@@ -1,28 +1,9 @@
 ﻿using ConsoleTables;
-using MatrixMultiplication;
 using MatrixMultiplication.Tests;
-
-MultiplicationMethod? method = null;
-try
-{
-    method = (MultiplicationMethod)Enum.Parse(typeof(MultiplicationMethod), args[0]);
-}
-catch (Exception)
-{
-    Console.WriteLine("Can't recognize multiplication method [Base, BaseParallel, Block, BlockParallel]");
-    Environment.Exit(-1);
-}
 
 ITester? algTester = null;
 
-if (method == MultiplicationMethod.Base)
-{
-    algTester = new BaseAlgorithmTester();
-}
-else
-{
-    algTester = new BlockAlgorithmTester();
-}
+algTester = new BlockAlgorithmTester();
 
 //cold start
 Console.WriteLine("Running task on cold start...");
