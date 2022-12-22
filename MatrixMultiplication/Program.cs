@@ -1,51 +1,31 @@
 ﻿using ConsoleTables;
-using MatrixMultiplication;
 using MatrixMultiplication.Tests;
-
-MultiplicationMethod? method = null;
-try
-{
-    method = (MultiplicationMethod)Enum.Parse(typeof(MultiplicationMethod), args[0]);
-}
-catch (Exception)
-{
-    Console.WriteLine("Can't recognize multiplication method [Base, BaseParallel, Block, BlockParallel]");
-    Environment.Exit(-1);
-}
 
 ITester? algTester = null;
 
-if (method == MultiplicationMethod.Base)
-{
-    algTester = new BaseAlgorithmTester();
-}
-else
-{
-    algTester = new BlockAlgorithmTester();
-}
+algTester = new BaseAlgorithmTester();
 
-//cold start
-Console.WriteLine("Running task on cold start...");
+Console.WriteLine("Холодный старт...");
 Task testTask = Task.Run(algTester.Test);
-Console.WriteLine($"Task status: {testTask.Status}");
+Console.WriteLine($"Статус: {testTask.Status}");
 testTask.Wait();
 
 // main test
-Console.WriteLine("Running main test...");
+Console.WriteLine("Основной тест...");
 Task<Dictionary<int, Dictionary<int, long>>> mainTask = Task.Run(algTester.Test);
-Console.WriteLine($"Task status: {mainTask.Status}");
+Console.WriteLine($"Статус: {mainTask.Status}");
 mainTask.Wait();
 
 // display results
 ConsoleTable? consoleTable = new ConsoleTable(
-    "Matrix size",
-    "1 thread",
-    "2 threads",
-    "Diff",
-    "4 threads",
-    "Diff",
-    "8 threads",
-    "Diff"
+    "Размер матрицы",
+    "1 поток",
+    "2 потока",
+    "Разница",
+    "4 потока",
+    "Разница",
+    "8 потоков",
+    "Разница"
 );
 
 foreach (var result in mainTask.Result)
@@ -61,12 +41,12 @@ foreach (var result in mainTask.Result)
         if (iteration.Key == 1)
         {
             singleThreadMS = (double)iteration.Value / 1000;
-            iterationResults.Add($"{Math.Round((double)iteration.Value / 1000, 4)} sec");
+            iterationResults.Add($"{Math.Round((double)iteration.Value / 1000, 4)} сек");
         }
         else
         {
-            iterationResults.Add($"{Math.Round((double)iteration.Value / 1000, 4)} sec");
-            iterationResults.Add($"{Math.Round((double)iteration.Value / 1000 - singleThreadMS, 4)} sec");
+            iterationResults.Add($"{Math.Round((double)iteration.Value / 1000, 4)} сек");
+            iterationResults.Add($"{Math.Round((double)iteration.Value / 1000 - singleThreadMS, 4)} сек");
         }
     }
 
