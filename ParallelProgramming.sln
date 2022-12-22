@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MatrixMultiplication", "Mat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FloydAlgorithm", "FloydAlgorithm\FloydAlgorithm.csproj", "{47497CC2-406B-44C1-B549-EED8ABD23C5B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LUDecomposition", "LUDecomposition\LUDecomposition.csproj", "{E97EF8EE-AA76-43F2-AB24-F12CEA5A963F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{47497CC2-406B-44C1-B549-EED8ABD23C5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47497CC2-406B-44C1-B549-EED8ABD23C5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47497CC2-406B-44C1-B549-EED8ABD23C5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E97EF8EE-AA76-43F2-AB24-F12CEA5A963F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E97EF8EE-AA76-43F2-AB24-F12CEA5A963F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E97EF8EE-AA76-43F2-AB24-F12CEA5A963F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E97EF8EE-AA76-43F2-AB24-F12CEA5A963F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
