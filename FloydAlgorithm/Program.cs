@@ -2,6 +2,7 @@
 using ConsoleTables;
 using FloydAlgorithm;
 using FloydAlgorithm.Tests;
+using MatrixMultiplication;
 
 // Количество вершин графа
 int countOfVertices = 6;
@@ -9,39 +10,9 @@ int countOfVertices = 6;
 // Генератор случайных чисел для заполнения матрицы смежности
 Random rnd = new();
 
-// Матрица смежности
-int[,] adjacencyMatrix = new int[countOfVertices, countOfVertices];
-
-// Заполнение матрицы смежности
-for (int row = 0; row < adjacencyMatrix.GetLength(0); row++)
-{
-    for (int col = row; col < adjacencyMatrix.GetLength(1); col++)
-    {
-        if (col == row)
-        {
-            adjacencyMatrix[row, col] = 0;
-        }
-        else
-        {
-            // Флаг существования пути между вершинами
-            bool wayExists = rnd.Next(0, 10) > 3;
-
-            if (wayExists) // Если путь существует
-            {
-                int randomWeight = (int)rnd.Next(2, 20);
-                // Заполняем две связанные ячейки матрицы, считаем, что граф неориентированный
-                adjacencyMatrix[row, col] = randomWeight;
-                adjacencyMatrix[col, row] = randomWeight;
-            }
-            else // Если пути не существует
-            {
-                // Заполняем значением
-                adjacencyMatrix[row, col] = int.MaxValue;
-                adjacencyMatrix[col, row] = int.MaxValue;
-            }
-        }
-    }
-}
+// Матрица смежности для тестирования корректности расчетов
+#region Тестирование корректности расчетов
+int[,] adjacencyMatrix = MatrixHelper.GenerateMatrix(countOfVertices, null);
 
 IPrinter<int[,]> matrixPrinter = new MatrixPrinter();
 
@@ -51,13 +22,15 @@ matrixPrinter.PrintData(adjacencyMatrix);
 FloydProcessor floydProcessor = new(adjacencyMatrix);
 
 int[,] floydBaseProcessedMatrix = floydProcessor.ProcessFloydBase();
-int[,] floydParallelProcessedMatrix = floydProcessor.ProcessFloydBase();
+int[,] floydParallelProcessedMatrix = floydProcessor.ProcessFloydParallel(4);
 
 Console.WriteLine("Base algorithm:");
 matrixPrinter.PrintData(floydBaseProcessedMatrix);
 Console.WriteLine("Parallel algorithm:");
 matrixPrinter.PrintData(floydParallelProcessedMatrix);
+#endregion
 
+#region Тестирование на больших объемах данных
 FloydTester floydTester = new();
 
 // Первый запуск алгоритма (холодный старт)
@@ -110,3 +83,4 @@ foreach (var result in mainTask.Result)
 }
 
 consoleTable.Write();
+#endregion

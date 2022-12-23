@@ -40,7 +40,7 @@ namespace FloydAlgorithm.Tests
             foreach (int matrixSize in MatrixSizes)
             {
                 // Генерируем матрицу смежности
-                adjacencyMatrix = MatrixHelper.GenerateMatrix(matrixSize, matrixSize, null);
+                adjacencyMatrix = MatrixHelper.GenerateMatrix(matrixSize, null);
                 // Создаем обработчик
                 floydProcessor = new(adjacencyMatrix);
 
