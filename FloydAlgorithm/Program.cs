@@ -33,12 +33,6 @@ matrixPrinter.PrintData(floydParallelProcessedMatrix);
 #region Тестирование на больших объемах данных
 FloydTester floydTester = new();
 
-// Первый запуск алгоритма (холодный старт)
-Console.WriteLine("Running task on cold start...");
-Task testTask = Task.Run(floydTester.Test);
-Console.WriteLine($"Task status: {testTask.Status}");
-testTask.Wait();
-
 // Основной запуск алгоритма
 Console.WriteLine("Running main test...");
 Task<Dictionary<int, Dictionary<int, long>>> mainTask = Task.Run(floydTester.Test);

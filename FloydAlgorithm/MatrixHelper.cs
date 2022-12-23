@@ -27,11 +27,11 @@
                     else
                     {
                         // Флаг существования пути между вершинами
-                        bool wayExists = rnd.Next(0, 10) > 3;
+                        bool wayExists = rnd.Next(0, 10) > 1;
 
                         if (wayExists) // Если путь существует
                         {
-                            int randomWeight = (int)rnd.Next(2, 20);
+                            int randomWeight = generator.Invoke();
                             // Заполняем две связанные ячейки матрицы, считаем, что граф неориентированный
                             adjacencyMatrix[row, col] = randomWeight;
                             adjacencyMatrix[col, row] = randomWeight;
@@ -50,7 +50,7 @@
 
         private static int GenerateNumber()
         {
-            return new Random().Next(2, 20);
+            return new Random().Next(5, 20);
         }
     }
 }

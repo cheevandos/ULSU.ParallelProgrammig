@@ -5,19 +5,13 @@ ITester? algTester = null;
 
 algTester = new BlockAlgorithmTester();
 
-//cold start
-Console.WriteLine("Running task on cold start...");
-Task testTask = Task.Run(algTester.Test);
-Console.WriteLine($"Task status: {testTask.Status}");
-testTask.Wait();
-
-// main test
+// Запуск основного теста
 Console.WriteLine("Running main test...");
 Task<Dictionary<int, Dictionary<int, long>>> mainTask = Task.Run(algTester.Test);
 Console.WriteLine($"Task status: {mainTask.Status}");
 mainTask.Wait();
 
-// display results
+// Отображение
 ConsoleTable? consoleTable = new ConsoleTable(
     "Matrix size",
     "1 thread",
