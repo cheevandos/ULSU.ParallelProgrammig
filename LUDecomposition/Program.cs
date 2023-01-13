@@ -2,10 +2,12 @@
 {
     class Program
     {
+        static double[,] AMatrix = { { 2.0f, 1.0f, 3.0f }, { 4.0f, 2.0f, 1.0f }, { 3.0f, 1.0f, 2.0f } };
+        double[,] U;
+        double[,] L;
+
         static void Main(string[] args)
         {
-            // Test the matrix decomposition function
-            double[,] AMatrix = { { 2.0f, 1.0f, 3.0f }, { 4.0f, 2.0f, 1.0f }, { 3.0f, 1.0f, 2.0f } };
             int rows = AMatrix.GetLength(0);
             int cols = AMatrix.GetLength(1);
             double[,] U = new double[rows, cols];
@@ -20,62 +22,104 @@
 
         static void DecomposeLU(double[,] A, double[,] L,  double[,] U)
         {
-            int n = A.GetLength(0);
 
-            for (int k = 0; k < n; k++)
+            // вектор для перестановки строк
+            int[] vectorRows = new int[A.GetLength(0)];
+            // вектор для перестановки столбцов
+            int[] vectorCols = new int[A.GetLength(0)];
+
+            for (int k = 0; k < A.GetLength(0) - 1; k++)
             {
-                // Find pivot for column
-                int pivot = k;
-                for (int i = k + 1; i < n; i++)
+                // инициализация векторов порядка
+                for (int vectorElem = 0; vectorElem < vectorRows.Length; vectorElem++)
                 {
-                    if (Math.Abs(A[i, k]) > Math.Abs(A[pivot, k]))
-                    {
-                        pivot = i;
-                    }
+                    vectorRows[vectorElem] = vectorElem;
+                    vectorCols[vectorElem] = vectorElem;
                 }
 
-                // Swap rows
-                if (pivot != k)
+                // получаем строку и столбец максимального элемента
+                Tuple<int, int> maxElemParams = GetMaxElement(k);
+
+                // изменяем порядок столбцов/строк 
+                Swap(vectorRows, k, maxElemParams.Item1);
+                Swap(vectorCols, k, maxElemParams.Item2);
+
+                // Получаем первый элемент и делим на этот элемент всю строку
+                double element = AMatrix[vectorRows[k], vectorCols[k]];
+                for (int col = k; col < AMatrix.GetLength(1); col++)
                 {
-                    for (int j = 0; j < n; j++)
-                    {
-                        double temp = A[k, j];
-                        A[k, j] = A[pivot, j];
-                        A[pivot, j] = temp;
-                    }
+                    AMatrix[vectorRows[k], vectorCols[col]] /= element;
                 }
 
-                // Compute multipliers
-                for (int i = k + 1; i < n; i++)
+                // Вычитаем из каждой последующей строки первую строку подматрицы,
+                // умноженную на первый элемент
+                for (int row = k + 1; row < AMatrix.GetLength(0); row++)
                 {
-                    A[i, k] /= A[k, k];
-                    for (int j = k + 1; j < n; j++)
+                    double firstRowElement = AMatrix[vectorRows[row], vectorCols[0]];
+
+                    L[vectorRows[row], vectorCols[0]] = firstRowElement;
+
+                    for (int col = k; col < AMatrix.GetLength(1); col++)
                     {
-                        A[i, j] -= A[i, k] * A[k, j];
+                        AMatrix[vectorRows[row], vectorCols[col]] -=
+                            firstRowElement * AMatrix[vectorRows[k], vectorCols[col]];
+                        U[vectorRows[row], vectorCols[col]] = AMatrix[vectorRows[row], vectorCols[col]];
                     }
                 }
             }
 
-            // Copy result to L and U matrices
-            for (int i = 0; i < n; i++)
+            for (int row = 0; row < AMatrix.GetLength(0); row++)
             {
-                for (int j = 0; j < n; j++)
+                for (int col = 0; col < AMatrix.GetLength(1); col++)
                 {
-                    if (i > j)
+                    Console.Write($"{U[row, col]}\t");
+                }
+                Console.WriteLine("\n");
+            }
+            Console.WriteLine("\n");
+
+            for (int row = 0; row < L.GetLength(0); row++)
+            {
+                for (int col = 0; col < L.GetLength(1); col++)
+                {
+                    Console.Write($"{L[row, col]}\t");
+                }
+                Console.WriteLine("\n");
+            }
+            Console.WriteLine("\n");
+        }
+
+        /// <summary>
+        /// Замена порядка столбцов/строк
+        /// </summary>
+        /// <param name="vector">Вектор порядка</param>
+        /// <param name="index">Индекс строки/столбца</param>
+        /// <param name="current">На какой заменить</param>
+        static void Swap(int[] vector, int index, int current)
+        {
+            int temp = vector[index];
+            vector[index] = current;
+            vector[current] = temp;
+        }
+
+        static Tuple<int, int> GetMaxElement(int startIndex)
+        {
+            double maxElement = AMatrix[startIndex, startIndex];
+            int rowIndex = startIndex;
+            int colIndex = startIndex;
+            for (int row = startIndex; row < AMatrix.GetLength(0); row++)
+            {
+                for (int col = startIndex; col < AMatrix.GetLength(1); col++)
+                {
+                    if (Math.Abs(AMatrix[row, col]) > Math.Abs(maxElement))
                     {
-                        L[i, j] = A[i, j];
-                    }
-                    else if (i == j)
-                    {
-                        L[i, j] = 1;
-                        U[i, j] = A[i, j];
-                    }
-                    else
-                    {
-                        U[i, j] = A[i, j];
+                        maxElement = AMatrix[row, col];
+                        rowIndex = row;
+                        colIndex = col;
                     }
                 }
             }
+            return new Tuple<int, int>(rowIndex, colIndex);
         }
 
         static void PrintMatrix(double[,] M)

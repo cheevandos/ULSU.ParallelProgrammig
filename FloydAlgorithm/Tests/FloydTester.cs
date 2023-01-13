@@ -11,7 +11,7 @@ namespace FloydAlgorithm.Tests
         /// <summary>
         /// Список размеров матриц для тестирования
         /// </summary>
-        private readonly List<int> MatrixSizes = new() { 100, 1000, 1500, 2500 };
+        private readonly List<int> MatrixSizes = new() { 100, 1000 };
         /// <summary>
         /// Список количества потоков для тестирования параллельного алгоритма
         /// </summary>

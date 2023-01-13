@@ -19,12 +19,12 @@
         {
             resultMatrix = new int[firstMatrix.GetLength(0), secondMatrix.GetLength(1)];
 
-            int gridSize = 4;
+            int gridSize = (int)(Math.Sqrt(firstMatrix.GetLength(0)));
 
-/*            while (firstMatrix.GetLength(0) % gridSize != 0)
+            while (firstMatrix.GetLength(0) % gridSize != 0)
             {
                 gridSize++;
-            }*/
+            }
 
             int blockSize = firstMatrix.GetLength(0) / gridSize;
             int blocksCount = gridSize * gridSize;
@@ -52,12 +52,12 @@
         {
             resultMatrix = new int[firstMatrix.GetLength(0), secondMatrix.GetLength(1)];
 
-            int gridSize = 4;
+            int gridSize = (int)(Math.Sqrt(firstMatrix.GetLength(0)));
 
-/*            while (firstMatrix.GetLength(0) % gridSize != 0)
+            while (firstMatrix.GetLength(0) % gridSize != 0)
             {
                 gridSize++;
-            }*/
+            }
 
             int blockSize = firstMatrix.GetLength(0) / gridSize;
             int blocksCount = gridSize * gridSize;

@@ -5,7 +5,7 @@ namespace MatrixMultiplication.Tests
 {
     public class BlockAlgorithmTester : ITester
     {
-        private readonly List<int> MatrixSizes = new() { 100, 1000, 1500, 2500 };
+        private readonly List<int> MatrixSizes = new() { 100, 1000, 1500, 3000 };
         private readonly List<int> ThreadsCount = new() { 2, 4, 8 };
 
         private MatrixProcessor? baseProcessor;
