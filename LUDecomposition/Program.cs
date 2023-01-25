@@ -2,92 +2,163 @@
 {
     class Program
     {
-        static double[,] AMatrix = { { 2.0f, 1.0f, 3.0f }, { 4.0f, 2.0f, 1.0f }, { 3.0f, 1.0f, 2.0f } };
-        double[,] U;
-        double[,] L;
+        static double[,] AMatrix =
+        {
+            { 2.0f, 1.0f, 3.0f },
+            { 4.0f, 2.0f, 1.0f },
+            { 3.0f, 1.0f, 2.0f }
+        };
+
+        // вектор для перестановки строк
+        static int[]? vectorRows;
+        // вектор для перестановки столбцов
+        static int[]? vectorCols;
+
+        static int rows;
+        static int cols;
 
         static void Main(string[] args)
         {
-            int rows = AMatrix.GetLength(0);
-            int cols = AMatrix.GetLength(1);
-            double[,] U = new double[rows, cols];
-            double[,] L = new double[rows, cols];
-            DecomposeLU(AMatrix, L, U);
+            rows = AMatrix.GetLength(0);
+            cols = AMatrix.GetLength(1);
 
-            Console.WriteLine("L:");
-            PrintMatrix(L);
-            Console.WriteLine("U:");
-            PrintMatrix(U);
+            double[,] MatrixForSignleThread = new double[rows, cols];
+            double[,] MatrixForMultiThread = new double[rows, cols];
+            Array.Copy(AMatrix, MatrixForSignleThread, AMatrix.Length);
+            Array.Copy(AMatrix, MatrixForMultiThread, AMatrix.Length);
+
+            DecomposeLU(MatrixForSignleThread);
+            DecomposeLUParallel(MatrixForMultiThread, 4);
         }
 
-        static void DecomposeLU(double[,] A, double[,] L,  double[,] U)
+        static void DecomposeLU(double[,] matrix)
         {
+            double[,] U = new double[rows, cols];
+            double[,] L = new double[rows, cols];
 
-            // вектор для перестановки строк
-            int[] vectorRows = new int[A.GetLength(0)];
-            // вектор для перестановки столбцов
-            int[] vectorCols = new int[A.GetLength(0)];
+            vectorRows = new int[matrix.GetLength(0)];
+            vectorCols = new int[matrix.GetLength(0)];
 
-            for (int k = 0; k < A.GetLength(0) - 1; k++)
+            // инициализация векторов порядка
+            for (int vectorElem = 0; vectorElem < vectorRows.Length; vectorElem++)
             {
-                // инициализация векторов порядка
-                for (int vectorElem = 0; vectorElem < vectorRows.Length; vectorElem++)
-                {
-                    vectorRows[vectorElem] = vectorElem;
-                    vectorCols[vectorElem] = vectorElem;
-                }
+                vectorRows[vectorElem] = vectorElem;
+                vectorCols[vectorElem] = vectorElem;
+            }
 
+            for (int k = 0; k < matrix.GetLength(0); k++)
+            {
                 // получаем строку и столбец максимального элемента
-                Tuple<int, int> maxElemParams = GetMaxElement(k);
+                Tuple<int, int> maxElemParams = GetMaxElement(k, matrix);
 
                 // изменяем порядок столбцов/строк 
                 Swap(vectorRows, k, maxElemParams.Item1);
                 Swap(vectorCols, k, maxElemParams.Item2);
 
                 // Получаем первый элемент и делим на этот элемент всю строку
-                double element = AMatrix[vectorRows[k], vectorCols[k]];
-                for (int col = k; col < AMatrix.GetLength(1); col++)
+                double element = matrix[vectorRows[k], vectorCols[k]];
+                L[vectorRows[k], vectorCols[k]] = element;
+                for (int col = k; col < matrix.GetLength(1); col++)
                 {
-                    AMatrix[vectorRows[k], vectorCols[col]] /= element;
+                    matrix[vectorRows[k], vectorCols[col]] /= element;
+                    U[vectorRows[k], vectorCols[col]] = matrix[vectorRows[k], vectorCols[col]];
                 }
 
                 // Вычитаем из каждой последующей строки первую строку подматрицы,
                 // умноженную на первый элемент
-                for (int row = k + 1; row < AMatrix.GetLength(0); row++)
+                for (int row = k + 1; row < matrix.GetLength(0); row++)
                 {
-                    double firstRowElement = AMatrix[vectorRows[row], vectorCols[0]];
+                    double firstRowElement = matrix[vectorRows[row], vectorCols[k]];
 
-                    L[vectorRows[row], vectorCols[0]] = firstRowElement;
+                    L[vectorRows[row], vectorCols[k]] = firstRowElement;
 
-                    for (int col = k; col < AMatrix.GetLength(1); col++)
+                    for (int col = k; col < matrix.GetLength(1); col++)
                     {
-                        AMatrix[vectorRows[row], vectorCols[col]] -=
-                            firstRowElement * AMatrix[vectorRows[k], vectorCols[col]];
-                        U[vectorRows[row], vectorCols[col]] = AMatrix[vectorRows[row], vectorCols[col]];
+                        matrix[vectorRows[row], vectorCols[col]] -=
+                            firstRowElement * matrix[vectorRows[k], vectorCols[col]];
+                        U[vectorRows[row], vectorCols[col]] = matrix[vectorRows[row], vectorCols[col]];
                     }
                 }
             }
+            PrintMatrix("U", U);
+            PrintMatrix("L", L);
+        }
 
-            for (int row = 0; row < AMatrix.GetLength(0); row++)
+        static void DecomposeLUParallel(double[,] matrix, int threadsCount)
+        {
+            double[,] U = new double[rows, cols];
+            double[,] L = new double[rows, cols];
+
+            vectorRows = new int[matrix.GetLength(0)];
+            vectorCols = new int[matrix.GetLength(0)];
+
+            // инициализация векторов порядка
+            for (int vectorElem = 0; vectorElem < vectorRows.Length; vectorElem++)
             {
-                for (int col = 0; col < AMatrix.GetLength(1); col++)
-                {
-                    Console.Write($"{U[row, col]}\t");
-                }
-                Console.WriteLine("\n");
+                vectorRows[vectorElem] = vectorElem;
+                vectorCols[vectorElem] = vectorElem;
             }
-            Console.WriteLine("\n");
 
-            for (int row = 0; row < L.GetLength(0); row++)
+            for (int k = 0; k < matrix.GetLength(0); k++)
             {
-                for (int col = 0; col < L.GetLength(1); col++)
+
+                // получаем строку и столбец максимального элемента
+                Tuple<int, int> maxElemParams = GetMaxElementParallel(k, threadsCount, matrix);
+
+                // изменяем порядок столбцов/строк 
+                Swap(vectorRows, k, maxElemParams.Item1);
+                Swap(vectorCols, k, maxElemParams.Item2);
+
+                // Получаем первый элемент и делим на этот элемент всю строку
+                double element = matrix[vectorRows[k], vectorCols[k]];
+                L[vectorRows[k], vectorCols[k]] = element;
+
+                ParallelOptions options = new()
                 {
-                    Console.Write($"{L[row, col]}\t");
+                    MaxDegreeOfParallelism = threadsCount
+                };
+
+                Parallel.For(k, matrix.GetLength(1), options, (col) =>
+                {
+                    matrix[vectorRows[k], vectorCols[col]] /= element;
+                    U[vectorRows[k], vectorCols[col]] = matrix[vectorRows[k], vectorCols[col]];
+                });
+
+                // Вычитаем из каждой последующей строки первую строку подматрицы,
+                // умноженную на первый элемент
+                Parallel.For(k + 1, matrix.GetLength(0), options, (row) =>
+                {
+                    double firstRowElement = matrix[vectorRows[row], vectorCols[k]];
+
+                    L[vectorRows[row], vectorCols[k]] = firstRowElement;
+
+                    for (int col = k; col < matrix.GetLength(1); col++)
+                    {
+                        matrix[vectorRows[row], vectorCols[col]] -=
+                            firstRowElement * matrix[vectorRows[k], vectorCols[col]];
+                        U[vectorRows[row], vectorCols[col]] = matrix[vectorRows[row], vectorCols[col]];
+                    }
+                });
+            }
+            PrintMatrix("U", U);
+            PrintMatrix("L", L);
+        }
+
+        #nullable disable
+        public static void PrintMatrix(string matrixName, double[,] matrix)
+        {
+            Console.WriteLine($"Матрица {matrixName}:\n");
+            for (int row = 0; row < matrix.GetLength(0); row++)
+            {
+                for (int col = 0; col < matrix.GetLength(1); col++)
+                {
+                    Console.Write($"{matrix[vectorRows[row], vectorCols[col]]}\t");
                 }
                 Console.WriteLine("\n");
             }
             Console.WriteLine("\n");
         }
+        #nullable enable
 
         /// <summary>
         /// Замена порядка столбцов/строк
@@ -102,18 +173,19 @@
             vector[current] = temp;
         }
 
-        static Tuple<int, int> GetMaxElement(int startIndex)
+        #nullable disable
+        static Tuple<int, int> GetMaxElement(int startIndex, double[,] matrix)
         {
-            double maxElement = AMatrix[startIndex, startIndex];
             int rowIndex = startIndex;
             int colIndex = startIndex;
-            for (int row = startIndex; row < AMatrix.GetLength(0); row++)
+            double maxElement = matrix[vectorRows[rowIndex], vectorCols[colIndex]];
+            for (int row = startIndex; row < matrix.GetLength(0); row++)
             {
-                for (int col = startIndex; col < AMatrix.GetLength(1); col++)
+                for (int col = startIndex; col < matrix.GetLength(1); col++)
                 {
-                    if (Math.Abs(AMatrix[row, col]) > Math.Abs(maxElement))
+                    if (Math.Abs(matrix[vectorRows[row], vectorCols[col]]) > Math.Abs(maxElement))
                     {
-                        maxElement = AMatrix[row, col];
+                        maxElement = matrix[vectorRows[row], vectorCols[col]];
                         rowIndex = row;
                         colIndex = col;
                     }
@@ -121,20 +193,31 @@
             }
             return new Tuple<int, int>(rowIndex, colIndex);
         }
+        #nullable enable
 
-        static void PrintMatrix(double[,] M)
+        static Tuple<int, int> GetMaxElementParallel(int startIndex, int threadsCount, double[,] matrix)
         {
-            int n = M.GetLength(0);
-            int m = M.GetLength(1);
+            int rowIndex = startIndex;
+            int colIndex = startIndex;
+            double maxElement = matrix[vectorRows[rowIndex], vectorCols[colIndex]];
 
-            for (int i = 0; i < n; i++)
+            ParallelOptions options = new ParallelOptions
             {
-                for (int j = 0; j < m; j++)
+                MaxDegreeOfParallelism = threadsCount
+            };
+            Parallel.For(startIndex, matrix.GetLength(0), options, (row) =>
+            {
+                for (int col = startIndex; col < matrix.GetLength(1); col++)
                 {
-                    Console.Write(M[i, j] + " ");
+                    if (Math.Abs(matrix[vectorRows[row], vectorCols[col]]) > Math.Abs(maxElement))
+                    {
+                        maxElement = matrix[vectorRows[row], vectorCols[col]];
+                        rowIndex = row;
+                        colIndex = col;
+                    }
                 }
-                Console.WriteLine();
-            }
+            });
+            return new Tuple<int, int>(rowIndex, colIndex);
         }
     }
 }
